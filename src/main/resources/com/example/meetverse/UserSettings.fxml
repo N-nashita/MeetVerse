@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="500.0" prefWidth="650.0" stylesheets="@Homepage.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.meetverse.Controllers.UserSettingsController">
+
+    <top>
+        <HBox alignment="CENTER" prefHeight="50.0" spacing="20" style="-fx-background-color: #1b3d64e0; -fx-padding: 8 20;">
+            <HBox alignment="CENTER_LEFT" spacing="10" HBox.hgrow="ALWAYS">
+                <ImageView fitHeight="35.0" fitWidth="35.0" preserveRatio="true" styleClass="image">
+                    <image>
+                        <Image url="@images/MeetVerse.png" />
+                    </image>
+                </ImageView>
+                <Label style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" text="MeetVerse" />
+            </HBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <HBox alignment="CENTER_RIGHT" spacing="6">
+                <Button onAction="#handleHome" styleClass="header-button" text="Home" />
+                <Button styleClass="header-button" text="Users" />
+                <Button styleClass="header-button" text="History" />
+                <Button styleClass="header-button" text="Settings" />
+            </HBox>
+        </HBox>
+    </top>
+
+    <left>
+        <HBox alignment="CENTER_LEFT" prefWidth="260" spacing="12" styleClass="profile-section">
+            <padding>
+                <Insets bottom="40" left="20" right="20" top="40" />
+            </padding>
+
+            <StackPane>
+                <Circle radius="35" styleClass="profile-pic" />
+                <Label fx:id="profileInitialLabel" styleClass="profile-pic-text" text="U">
+                    <font>
+                        <Font size="20.0" />
+                    </font>
+                </Label>
+            </StackPane>
+
+            <VBox alignment="CENTER_LEFT" spacing="3" HBox.hgrow="ALWAYS">
+                <Label fx:id="nameLabel" styleClass="profile-name" text="John Doe">
+                    <font>
+                        <Font size="13.0" />
+                    </font>
+                </Label>
+
+                <Label fx:id="emailLabel" styleClass="profile-email" text="john@example.com">
+                    <font>
+                        <Font size="10.0" />
+                    </font>
+                </Label>
+            </VBox>
+        </HBox>
+    </left>
+
+    <center>
+        <VBox alignment="CENTER" spacing="20" styleClass="content-section" HBox.hgrow="ALWAYS">
+            <padding>
+                <Insets bottom="40" left="40" right="40" top="40" />
+            </padding>
+
+            <Label styleClass="dashboard-title" text="User Settings">
+                <font>
+                    <Font size="24.0" />
+                </font>
+            </Label>
+
+            <VBox spacing="12" prefWidth="350" alignment="CENTER">
+                <Button onAction="#handleChangePassword" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="Change Password">
+                    <font>
+                        <Font size="13.0" />
+                    </font>
+                </Button>
+
+                <Button onAction="#handleSeeParticipants" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="See Participants">
+                    <font>
+                        <Font size="13.0" />
+                    </font>
+                </Button>
+
+                <Button onAction="#handleSeeAdmin" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="See Admin">
+                    <font>
+                        <Font size="13.0" />
+                    </font>
+                </Button>
+            </VBox>
+        </VBox>
+    </center>
+
+</BorderPane>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="550.0" prefWidth="650.0" stylesheets="@Homepage.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.meetverse.Controllers.CreateMeetingController">
+    
+    <VBox alignment="CENTER" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+        <VBox alignment="CENTER" maxHeight="500" maxWidth="450" spacing="12" styleClass="login-card">
+            <padding>
+                <Insets bottom="25" left="25" right="25" top="25" />
+            </padding>
+            
+            <Label alignment="CENTER" styleClass="card-title" text="Create Meeting">
+                <font>
+                    <Font size="26.0" />
+                </font>
+            </Label>
+
+            <VBox spacing="4">
+                <Label styleClass="field-label" text="Meeting Title" />
+                <TextField fx:id="titleField" promptText="Enter meeting title" styleClass="input-field" />
+            </VBox>
+
+            <VBox spacing="4">
+                <Label styleClass="field-label" text="Meeting Description" />
+                <TextArea fx:id="descriptionField" prefRowCount="3" promptText="Enter meeting description" styleClass="input-field" wrapText="true" />
+            </VBox>
+
+            <HBox spacing="10">
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label styleClass="field-label" text="Date" />
+                    <DatePicker fx:id="datePicker" maxHeight="39.0" maxWidth="Infinity" prefHeight="39.0" prefWidth="133.0" promptText="Select date" styleClass="input-field" />
+                </VBox>
+                
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label styleClass="field-label" text="Time" />
+                    <TextField fx:id="timeField" prefHeight="39.0" prefWidth="71.0" promptText="HH:MM" styleClass="input-field" />
+                </VBox>
+            </HBox>
+
+            <VBox spacing="4">
+                <Label styleClass="field-label" text="Meeting Type" />
+                <ComboBox fx:id="meetingTypeComboBox" maxHeight="26.0" maxWidth="Infinity" prefHeight="26.0" prefWidth="398.0" promptText="Select meeting type" styleClass="input-field">
+                    <items>
+                        <javafx.collections.FXCollections fx:factory="observableArrayList">
+                            <java.lang.String fx:value="Online" />
+                            <java.lang.String fx:value="Offline" />
+                        </javafx.collections.FXCollections>
+                    </items>
+                </ComboBox>
+            </VBox>
+           
+            <HBox alignment="CENTER" spacing="10">
+                <VBox.margin>
+                    <Insets top="10" />
+                </VBox.margin>
+                <Button onAction="#handleChooseParticipants" styleClass="signup-button" text="Choose Participants" />
+                <Button onAction="#handleCreateMeeting" styleClass="login-button" text="Create Meeting" />
+            </HBox>
+        </VBox>
+    </VBox>
+
+</AnchorPane>
