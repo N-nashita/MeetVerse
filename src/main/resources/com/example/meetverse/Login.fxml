@@ -1,14 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.meetverse.LoginController"
-            prefHeight="400.0" prefWidth="600.0">
+            fx:controller="com.example.meetverse.Controllers.LoginController"
+            prefHeight="500.0" prefWidth="650.0"
+            stylesheets="@Homepage.css">
+    
+    <VBox alignment="CENTER" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+        <VBox styleClass="login-card" spacing="10" maxWidth="320" maxHeight="370" alignment="CENTER">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20" />
+            </padding>
+            
+            <Label text="Login" styleClass="card-title" alignment="CENTER">
+                <font>
+                    <Font size="28.0" />
+                </font>
+            </Label>
+            
+            <VBox spacing="4">
+                <Label text="Email" styleClass="field-label" />
+                <TextField fx:id="emailField" promptText="Enter your email" styleClass="input-field" />
+            </VBox>
+            
+            <VBox spacing="4">
+                <Label text="Password" styleClass="field-label" />
+                <PasswordField fx:id="passwordField" promptText="Enter your password" styleClass="input-field" />
+            </VBox>
+            
+            <VBox spacing="4">
+                <Label text="Role" styleClass="field-label" />
+                <ComboBox fx:id="roleComboBox" promptText="Select your role" styleClass="input-field" maxWidth="Infinity" value="User">
+                    <items>
+                        <javafx.collections.FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Admin" />
+                            <String fx:value="User" />
+                        </javafx.collections.FXCollections>
+                    </items>
+                </ComboBox>
+            </VBox>
+            
+            <HBox alignment="CENTER">
+                <VBox.margin>
+                    <Insets top="8" />
+                </VBox.margin>
+                <Button text="Login" styleClass="login-button" onAction="#handleLogin" />
+            </HBox>
+        </VBox>
+    </VBox>
 
 </AnchorPane>
