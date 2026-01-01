@@ -22,13 +22,16 @@
                     <image>
                         <Image url="@images/MeetVerse.png" />
                     </image>
+                    <clip>
+                        <Circle centerX="17.5" centerY="17.5" radius="17.5" />
+                    </clip>
                 </ImageView>
                 <Label style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" text="MeetVerse" />
             </HBox>
             <Region HBox.hgrow="ALWAYS" />
             <HBox alignment="CENTER_RIGHT" spacing="6">
                 <Button onAction="#handleHome" styleClass="header-button" text="Home" />
-                <Button styleClass="header-button" text="Users" />
+                <Button onAction="#handleUsers" styleClass="header-button" text="Users" />
                 <Button styleClass="header-button" text="History" />
                 <Button styleClass="header-button" text="Settings" />
             </HBox>

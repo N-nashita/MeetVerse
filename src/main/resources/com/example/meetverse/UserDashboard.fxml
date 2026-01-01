@@ -21,13 +21,16 @@
                     <image>
                         <Image url="@images/MeetVerse.png" />
                     </image>
+                    <clip>
+                        <Circle centerX="17.5" centerY="17.5" radius="17.5" />
+                    </clip>
                 </ImageView>
                 <Label text="MeetVerse" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" />
             </HBox>
             <Region HBox.hgrow="ALWAYS" />
             <HBox alignment="CENTER_RIGHT" spacing="6">
                 <Button onAction="#handleHome" text="Home" styleClass="header-button" />
-                <Button text="Users" styleClass="header-button" />
+                <Button onAction="#handleUsers" text="Users" styleClass="header-button" />
                 <Button text="History" styleClass="header-button" />
                 <Button onAction="#handleSettings" text="Settings" styleClass="header-button" />
             </HBox>
@@ -41,7 +44,7 @@
 
             <StackPane>
                 <Circle radius="35.0" styleClass="profile-pic" />
-                <Label styleClass="profile-pic-text" text="U">
+                <Label fx:id="profileInitialLabel" styleClass="profile-pic-text" text="U">
                     <font>
                         <Font size="20.0" />
                     </font>

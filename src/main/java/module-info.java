@@ -1,6 +1,7 @@
 module com.example.meetverse {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.sql;
 
 
     opens com.example.meetverse to javafx.fxml;
