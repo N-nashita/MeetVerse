@@ -9,14 +9,39 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="550.0" prefWidth="650.0" stylesheets="@Homepage.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.meetverse.Controllers.CreateMeetingController">
+<BorderPane prefHeight="550.0" prefWidth="650.0" stylesheets="@Homepage.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.meetverse.Controllers.CreateMeetingController">
     
-    <VBox alignment="CENTER" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+    <top>
+        <HBox alignment="CENTER" prefHeight="50.0" spacing="20" style="-fx-background-color: #1b3d64e0; -fx-padding: 8 20;">
+            <HBox alignment="CENTER_LEFT" spacing="10" HBox.hgrow="ALWAYS">
+                <ImageView fitHeight="35.0" fitWidth="35.0" preserveRatio="true">
+                    <image>
+                        <Image url="@images/MeetVerse.png" />
+                    </image>
+                    <clip>
+                        <Circle centerX="17.5" centerY="17.5" radius="17.5" />
+                    </clip>
+                </ImageView>
+                <Label style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" text="MeetVerse" />
+            </HBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <HBox alignment="CENTER_RIGHT" spacing="6">
+                <Button onAction="#handleBack" styleClass="header-button" text="← Back" />
+            </HBox>
+        </HBox>
+    </top>
+    
+    <center>
+    <VBox alignment="CENTER">
         <VBox alignment="CENTER" maxHeight="500" maxWidth="450" spacing="12" styleClass="login-card">
             <padding>
                 <Insets bottom="25" left="25" right="25" top="25" />
@@ -46,7 +71,17 @@
                 
                 <VBox spacing="4" HBox.hgrow="ALWAYS">
                     <Label styleClass="field-label" text="Time" />
-                    <TextField fx:id="timeField" prefHeight="39.0" prefWidth="71.0" promptText="HH:MM" styleClass="input-field" />
+                    <HBox spacing="5">
+                        <TextField fx:id="timeField" prefHeight="39.0" prefWidth="100.0" promptText="HH:MM" styleClass="input-field" />
+                        <ComboBox fx:id="amPmComboBox" prefHeight="39.0" prefWidth="70.0" promptText="AM" styleClass="input-field">
+                            <items>
+                                <javafx.collections.FXCollections fx:factory="observableArrayList">
+                                    <java.lang.String fx:value="AM" />
+                                    <java.lang.String fx:value="PM" />
+                                </javafx.collections.FXCollections>
+                            </items>
+                        </ComboBox>
+                    </HBox>
                 </VBox>
             </HBox>
 
@@ -67,9 +102,10 @@
                     <Insets top="10" />
                 </VBox.margin>
                 <Button onAction="#handleChooseParticipants" styleClass="signup-button" text="Choose Participants" />
-                <Button onAction="#handleCreateMeeting" styleClass="login-button" text="Create Meeting" />
+                <Button fx:id="createMeetingButton" onAction="#handleCreateMeeting" styleClass="login-button" text="Create Meeting" />
             </HBox>
         </VBox>
     </VBox>
+    </center>
 
-</AnchorPane>
+</BorderPane>

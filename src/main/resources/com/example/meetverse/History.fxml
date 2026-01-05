@@ -14,7 +14,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 
-<BorderPane prefHeight="500.0" prefWidth="650.0" stylesheets="@Homepage.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.meetverse.Controllers.UserDashboardController">
+<BorderPane prefHeight="500.0" prefWidth="650.0" stylesheets="@Homepage.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.meetverse.Controllers.HistoryController">
     <top>
         <HBox alignment="CENTER" prefHeight="50.0" spacing="20" style="-fx-background-color: #1b3d64e0; -fx-padding: 8 20;">
             <HBox alignment="CENTER_LEFT" spacing="10" HBox.hgrow="ALWAYS">
@@ -32,7 +32,7 @@
             <HBox alignment="CENTER_RIGHT" spacing="6">
                 <Button onAction="#handleHome" text="Home" styleClass="header-button" />
                 <Button onAction="#handleUsers" text="Users" styleClass="header-button" />
-                <Button onAction="#handleHistory" text="History" styleClass="header-button" />
+                <Button text="History" styleClass="header-button" />
                 <Button onAction="#handleSettings" text="Settings" styleClass="header-button" />
             </HBox>
         </HBox>
@@ -51,49 +51,41 @@
                     </font>
                 </Label>
             </StackPane>
-            <VBox alignment="CENTER_LEFT" spacing="3" BorderPane.alignment="CENTER">
-                <Label fx:id="nameLabel" styleClass="profile-name" text="John Doe">
+
+            <VBox alignment="CENTER_LEFT" spacing="3" HBox.hgrow="ALWAYS">
+                <Label fx:id="nameLabel" styleClass="profile-name" text="User Name">
                     <font>
                         <Font size="13.0" />
                     </font>
                 </Label>
 
-                <Label fx:id="emailLabel" styleClass="profile-email" text="john@example.com">
+                <Label fx:id="emailLabel" styleClass="profile-email" text="user@example.com">
                     <font>
                         <Font size="10.0" />
                     </font>
                 </Label>
             </VBox>
         </HBox>
-
-
     </left>
-   <center>
-       <VBox spacing="15" styleClass="content-section" HBox.hgrow="ALWAYS">
-           <padding>
-               <Insets bottom="20" left="20" right="20" top="20" />
-           </padding>
+    <center>
+        <VBox alignment="TOP_CENTER" spacing="15" styleClass="content-section">
+            <padding>
+                <Insets bottom="20" left="30" right="30" top="30" />
+            </padding>
 
-           <HBox alignment="CENTER_LEFT" spacing="10">
-               <Label styleClass="dashboard-title" text="My Meetings">
-                   <font>
-                       <Font size="18.0" />
-                   </font>
-               </Label>
-               <Region HBox.hgrow="ALWAYS" />
-               <Button onAction="#handleLaunchMeeting" styleClass="login-button" text="+ Create Meeting" />
-           </HBox>
+            <Label styleClass="dashboard-title" text="Meeting History">
+                <font>
+                    <Font size="20.0" />
+                </font>
+            </Label>
 
-           <javafx.scene.control.ScrollPane fx:id="meetingsScrollPane" fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
-               <VBox fx:id="meetingsContainer" spacing="10" style="-fx-background-color: transparent;">
-                   <padding>
-                       <Insets bottom="10" left="10" right="10" top="10" />
-                   </padding>
-               </VBox>
-           </javafx.scene.control.ScrollPane>
-       </VBox>
-
-   </center>
-
-
+            <ScrollPane fx:id="historyScrollPane" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background: transparent;">
+                <VBox fx:id="historyContainer" spacing="10" style="-fx-background-color: transparent;">
+                    <padding>
+                        <Insets bottom="10" left="10" right="10" top="10" />
+                    </padding>
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </center>
 </BorderPane>

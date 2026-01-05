@@ -58,18 +58,24 @@ public class UserSettingsController {
             e.printStackTrace();
         }
     }
+    
+    @FXML
+    private void handleHistory(ActionEvent event) {
+        try {
+            FXMLLoader loader = Navigation.load("/com/example/meetverse/History.fxml");
+            Parent root = loader.getRoot();
+            
+            HistoryController controller = loader.getController();
+            controller.setUserInfo(nameLabel.getText(), emailLabel.getText(), "User");
+            
+            Navigation.setRoot(event, root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @FXML
     private void handleChangePassword(ActionEvent event) {
-    }
-
-    @FXML
-    private void handleSeeParticipants(ActionEvent event) {
-    }
-
-    @FXML
-    private void handleSeeAdmin(ActionEvent event) {
-        
     }
 
     public void setUserInfo(String name, String email) {

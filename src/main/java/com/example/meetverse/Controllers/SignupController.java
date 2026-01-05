@@ -65,11 +65,14 @@ public class SignupController {
                     "Account created successfully!";
                 showAlert(Alert.AlertType.INFORMATION, "Success", message);
                 
+                // Get the newly created user to get their ID
+                DatabaseManager.User user = DatabaseManager.getUserByEmail(email);
+                
                 System.out.println("Navigating to dashboard...");
                 if (assignedRole.equals("Admin")) {
-                    navigateToDashboard(event, "/com/example/meetverse/AdminDashboard.fxml", name, email);
+                    navigateToDashboard(event, "/com/example/meetverse/AdminDashboard.fxml", user);
                 } else {
-                    navigateToDashboard(event, "/com/example/meetverse/UserDashboard.fxml", name, email);
+                    navigateToDashboard(event, "/com/example/meetverse/UserDashboard.fxml", user);
                 }
             } else {
                 System.out.println("Registration failed in database");
@@ -82,18 +85,18 @@ public class SignupController {
         }
     }
 
-    private void navigateToDashboard(ActionEvent event, String fxmlPath, String name, String email) throws IOException {
+    private void navigateToDashboard(ActionEvent event, String fxmlPath, DatabaseManager.User user) throws IOException {
         FXMLLoader loader = Navigation.load(fxmlPath);
         
         if (fxmlPath.contains("Admin")) {
             AdminDashboardController controller = loader.getController();
             if (controller != null) {
-                controller.setUserInfo(name, email);
+                controller.setUserInfo(user.getName(), user.getEmail());
             }
         } else {
             UserDashboardController controller = loader.getController();
             if (controller != null) {
-                controller.setUserInfo(name, email);
+                controller.setUserInfo(user.getName(), user.getEmail(), user.getId());
             }
         }
         Parent root = loader.getRoot();

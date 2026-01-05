@@ -39,27 +39,27 @@ public class LoginController {
         
         if (user != null) {
             if (user.getRole().equals("Admin")) {
-                navigateToDashboard(event, "/com/example/meetverse/AdminDashboard.fxml", user.getName(), user.getEmail());
+                navigateToDashboard(event, "/com/example/meetverse/AdminDashboard.fxml", user);
             } else {
-                navigateToDashboard(event, "/com/example/meetverse/UserDashboard.fxml", user.getName(), user.getEmail());
+                navigateToDashboard(event, "/com/example/meetverse/UserDashboard.fxml", user);
             }
         } else {
             showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid email, password, or role.");
         }
     }
 
-    private void navigateToDashboard(ActionEvent event, String fxmlPath, String name, String email) throws IOException {
+    private void navigateToDashboard(ActionEvent event, String fxmlPath, DatabaseManager.User user) throws IOException {
         FXMLLoader loader = Navigation.load(fxmlPath);
         
         if (fxmlPath.contains("Admin")) {
             AdminDashboardController controller = loader.getController();
             if (controller != null) {
-                controller.setUserInfo(name, email);
+                controller.setUserInfo(user.getName(), user.getEmail());
             }
         } else {
             UserDashboardController controller = loader.getController();
             if (controller != null) {
-                controller.setUserInfo(name, email);
+                controller.setUserInfo(user.getName(), user.getEmail(), user.getId());
             }
         }
         Parent root = loader.getRoot();

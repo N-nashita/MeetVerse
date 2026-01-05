@@ -32,14 +32,14 @@
             <HBox alignment="CENTER_RIGHT" spacing="6">
                 <Button onAction="#handleHome" styleClass="header-button" text="Home" />
                 <Button onAction="#handleUsers" styleClass="header-button" text="Users" />
-                <Button styleClass="header-button" text="History" />
+                <Button onAction="#handleHistory" styleClass="header-button" text="History" />
                 <Button styleClass="header-button" text="Settings" />
             </HBox>
         </HBox>
     </top>
 
     <left>
-        <HBox alignment="CENTER_LEFT" prefWidth="260" spacing="12" styleClass="profile-section">
+        <HBox alignment="CENTER_LEFT" prefWidth="240.0" spacing="12" styleClass="profile-section">
             <padding>
                 <Insets bottom="40" left="20" right="20" top="40" />
             </padding>
@@ -81,26 +81,15 @@
                 </font>
             </Label>
 
-            <VBox spacing="12" prefWidth="350" alignment="CENTER">
-                <Button onAction="#handleChangePassword" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="Change Password">
+            <VBox alignment="CENTER" prefWidth="350" spacing="12">
+
+                <Button onAction="#handleEditParticipants" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="Participants">
                     <font>
                         <Font size="13.0" />
                     </font>
                 </Button>
 
-                <Button onAction="#handleEditParticipants" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="Edit Participants">
-                    <font>
-                        <Font size="13.0" />
-                    </font>
-                </Button>
-
-                <Button onAction="#handleEditAdmin" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="Edit Admin">
-                    <font>
-                        <Font size="13.0" />
-                    </font>
-                </Button>
-
-                <Button onAction="#handleMeetingRequest" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="Meeting Request">
+                <Button onAction="#handleEditAdmin" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="Change Admin">
                     <font>
                         <Font size="13.0" />
                     </font>

@@ -1,21 +1,29 @@
 package com.example.meetverse.Controllers;
 
+import com.example.meetverse.util.DatabaseManager;
 import com.example.meetverse.util.Navigation;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
-import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 public class AdminDashboardController {
 
@@ -27,10 +35,290 @@ public class AdminDashboardController {
 
     @FXML
     private Label profileInitialLabel;
+    
+    @FXML
+    private ScrollPane meetingRequestsScrollPane;
+    
+    @FXML
+    private VBox meetingRequestsContainer;
+    
+    @FXML
+    private void initialize() {
+        loadMeetings();
+    }
+    
+    private void loadMeetings() {
+        meetingRequestsContainer.getChildren().clear();
+        List<DatabaseManager.Meeting> meetings = DatabaseManager.getAllMeetings();
+        
+        if (meetings.isEmpty()) {
+            Label noMeetings = new Label("No meeting requests yet");
+            noMeetings.setStyle("-fx-font-size: 14px; -fx-text-fill: #999;");
+            VBox emptyBox = new VBox(noMeetings);
+            emptyBox.setAlignment(Pos.CENTER);
+            emptyBox.setPadding(new Insets(40));
+            meetingRequestsContainer.getChildren().add(emptyBox);
+        } else {
+            for (DatabaseManager.Meeting meeting : meetings) {
+                VBox card = createMeetingCard(meeting);
+                meetingRequestsContainer.getChildren().add(card);
+            }
+        }
+    }
+    
+    private VBox createMeetingCard(DatabaseManager.Meeting meeting) {
+        VBox card = new VBox(10);
+        card.setPadding(new Insets(15));
+        card.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);");
+        card.setCursor(javafx.scene.Cursor.HAND);
+        
+        // Title and Status
+        HBox titleRow = new HBox(10);
+        titleRow.setAlignment(Pos.CENTER_LEFT);
+        
+        Label titleLabel = new Label(meeting.getTitle());
+        titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1a1d3f;");
+        HBox.setHgrow(titleLabel, Priority.ALWAYS);
+        
+        Label statusLabel = new Label(meeting.getStatus());
+        statusLabel.setPadding(new Insets(4, 12, 4, 12));
+        
+        String statusStyle = switch (meeting.getStatus()) {
+            case "Pending" -> "-fx-background-color: #FFF3CD; -fx-text-fill: #856404; -fx-background-radius: 12;";
+            case "Approved" -> "-fx-background-color: #D4EDDA; -fx-text-fill: #155724; -fx-background-radius: 12;";
+            case "Rejected" -> "-fx-background-color: #F8D7DA; -fx-text-fill: #721C24; -fx-background-radius: 12;";
+            default -> "-fx-background-color: #E0E0E0; -fx-text-fill: #333; -fx-background-radius: 12;";
+        };
+        statusLabel.setStyle(statusStyle + " -fx-font-size: 11px; -fx-font-weight: bold;");
+        
+        titleRow.getChildren().addAll(titleLabel, statusLabel);
+        
+        // Description
+        Label descLabel = new Label(meeting.getDescription());
+        descLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666;");
+        descLabel.setWrapText(true);
+        descLabel.setMaxHeight(40);
+        
+        // Date, Time, Type
+        HBox detailsRow = new HBox(15);
+        detailsRow.setAlignment(Pos.CENTER_LEFT);
+        
+        Label dateLabel = new Label("📅 " + meeting.getMeetingDate());
+        dateLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #555;");
+        
+        Label timeLabel = new Label("🕐 " + meeting.getMeetingTime());
+        timeLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #555;");
+        
+        Label typeLabel = new Label("📍 " + meeting.getMeetingType());
+        typeLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #555;");
+        
+        detailsRow.getChildren().addAll(dateLabel, timeLabel, typeLabel);
+        
+        // Creator
+        Label creatorLabel = new Label("Requested by: " + meeting.getCreatorName());
+        creatorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888; -fx-font-style: italic;");
+        
+        // Countdown for approved meetings
+        Label countdownLabel = new Label();
+        countdownLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1b3d64;");
+        
+        if ("Approved".equals(meeting.getStatus())) {
+            updateCountdown(meeting, countdownLabel);
+            Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> updateCountdown(meeting, countdownLabel)));
+            timeline.setCycleCount(Animation.INDEFINITE);
+            timeline.play();
+        }
+        
+        card.getChildren().addAll(titleRow, descLabel, detailsRow, creatorLabel);
+        
+        if ("Approved".equals(meeting.getStatus())) {
+            card.getChildren().add(countdownLabel);
+        }
+        
+        // Click handler
+        card.setOnMouseClicked(e -> showMeetingDetails(meeting));
+        
+        // Hover effect
+        card.setOnMouseEntered(e -> card.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #1b3d64; -fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 3);"));
+        card.setOnMouseExited(e -> card.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);"));
+        
+        return card;
+    }
+    
+    private void updateCountdown(DatabaseManager.Meeting meeting, Label countdownLabel) {
+        try {
+            LocalDate meetingDate = LocalDate.parse(meeting.getMeetingDate());
+            LocalTime meetingTime = parseTime12Hour(meeting.getMeetingTime());
+            LocalDateTime meetingDateTime = LocalDateTime.of(meetingDate, meetingTime);
+            LocalDateTime now = LocalDateTime.now();
+            
+            long totalSeconds = ChronoUnit.SECONDS.between(now, meetingDateTime);
+            
+            if (totalSeconds <= 0) {
+                countdownLabel.setText("⏰ Meeting time has passed");
+                countdownLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #999;");
+                
+                // Move to history
+                DatabaseManager.moveToHistory(meeting.getId());
+                // Reload meetings to reflect changes
+                javafx.application.Platform.runLater(() -> loadMeetings());
+            } else {
+                long days = totalSeconds / 86400;
+                long hours = (totalSeconds % 86400) / 3600;
+                long minutes = (totalSeconds % 3600) / 60;
+                long seconds = totalSeconds % 60;
+                
+                String countdown = String.format("⏰ Starts in: %dd %dh %dm %ds", days, hours, minutes, seconds);
+                countdownLabel.setText(countdown);
+            }
+        } catch (Exception e) {
+            countdownLabel.setText("");
+        }
+    }
+    
+    private LocalTime parseTime12Hour(String timeStr) {
+        try {
+            // Check if time already contains AM/PM
+            if (timeStr.contains("AM") || timeStr.contains("PM")) {
+                String[] parts = timeStr.trim().split(" ");
+                String time = parts[0];
+                String ampm = parts[1];
+                
+                String[] timeParts = time.split(":");
+                int hour = Integer.parseInt(timeParts[0]);
+                int minute = Integer.parseInt(timeParts[1]);
+                
+                // Convert to 24-hour format
+                if (ampm.equals("PM") && hour != 12) {
+                    hour += 12;
+                } else if (ampm.equals("AM") && hour == 12) {
+                    hour = 0;
+                }
+                
+                return LocalTime.of(hour, minute);
+            } else {
+                // Fallback to 24-hour format
+                return LocalTime.parse(timeStr);
+            }
+        } catch (Exception e) {
+            // Default to current time if parsing fails
+            return LocalTime.now();
+        }
+    }
+    
+    private void showMeetingDetails(DatabaseManager.Meeting meeting) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setTitle("Meeting Details");
+        
+        VBox vbox = new VBox(15);
+        vbox.setPadding(new Insets(20));
+        vbox.setStyle("-fx-background-color: white;");
+        
+        Label titleLabel = new Label("Meeting Details");
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        
+        Label title = new Label("Title: " + meeting.getTitle());
+        title.setStyle("-fx-font-size: 14px;");
+        title.setWrapText(true);
+        
+        Label description = new Label("Description: " + meeting.getDescription());
+        description.setStyle("-fx-font-size: 14px;");
+        description.setWrapText(true);
+        
+        Label date = new Label("Date: " + meeting.getMeetingDate());
+        date.setStyle("-fx-font-size: 14px;");
+        
+        Label time = new Label("Time: " + meeting.getMeetingTime());
+        time.setStyle("-fx-font-size: 14px;");
+        
+        Label type = new Label("Type: " + meeting.getMeetingType());
+        type.setStyle("-fx-font-size: 14px;");
+        
+        Label creator = new Label("Requested by: " + meeting.getCreatorName());
+        creator.setStyle("-fx-font-size: 14px;");
+        
+        Label status = new Label("Status: " + meeting.getStatus());
+        status.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+        
+        // Get and display participants
+        List<DatabaseManager.User> participants = DatabaseManager.getMeetingParticipants(meeting.getId());
+        Label participantsLabel = new Label("Participants:");
+        participantsLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 10 0 5 0;");
+        
+        VBox participantsList = new VBox(5);
+        for (DatabaseManager.User participant : participants) {
+            Label participantLabel = new Label("• " + participant.getName() + " (" + participant.getEmail() + ")");
+            participantLabel.setStyle("-fx-font-size: 13px;");
+            participantsList.getChildren().add(participantLabel);
+        }
+        
+        ScrollPane participantsScroll = new ScrollPane(participantsList);
+        participantsScroll.setFitToWidth(true);
+        participantsScroll.setPrefViewportHeight(100);
+        participantsScroll.setStyle("-fx-background-color: transparent;");
+        
+        vbox.getChildren().addAll(titleLabel, title, description, date, time, type, creator, status, participantsLabel, participantsScroll);
+        
+        // Add action buttons for pending meetings
+        if ("Pending".equals(meeting.getStatus())) {
+            HBox buttonBox = new HBox(10);
+            buttonBox.setAlignment(Pos.CENTER);
+            buttonBox.setPadding(new Insets(10, 0, 0, 0));
+            
+            Button approveButton = new Button("Approve");
+            approveButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 20;");
+            approveButton.setOnAction(e -> {
+                DatabaseManager.updateMeetingStatus(meeting.getId(), "Approved");
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Meeting approved!");
+                loadMeetings();
+                dialog.close();
+            });
+            
+            Button rejectButton = new Button("Reject");
+            rejectButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-padding: 8 20;");
+            rejectButton.setOnAction(e -> {
+                DatabaseManager.updateMeetingStatus(meeting.getId(), "Rejected");
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Meeting rejected!");
+                loadMeetings();
+                dialog.close();
+            });
+            
+            Button closeButton = new Button("Close");
+            closeButton.setStyle("-fx-background-color: #9E9E9E; -fx-text-fill: white; -fx-padding: 8 20;");
+            closeButton.setOnAction(e -> dialog.close());
+            
+            buttonBox.getChildren().addAll(approveButton, rejectButton, closeButton);
+            vbox.getChildren().add(buttonBox);
+        } else {
+            Button closeButton = new Button("Close");
+            closeButton.setStyle("-fx-background-color: #9E9E9E; -fx-text-fill: white; -fx-padding: 8 20;");
+            closeButton.setOnAction(e -> dialog.close());
+            
+            HBox buttonBox = new HBox(10);
+            buttonBox.setAlignment(Pos.CENTER);
+            buttonBox.setPadding(new Insets(10, 0, 0, 0));
+            buttonBox.getChildren().add(closeButton);
+            vbox.getChildren().add(buttonBox);
+        }
+        
+        Scene scene = new Scene(vbox, 500, 550);
+        dialog.setScene(scene);
+        dialog.showAndWait();
+    }
+    
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
     @FXML
     private void handleHome(ActionEvent event) {
-        
+        // Refresh the meetings list
+        loadMeetings();
     }
 
     @FXML
@@ -40,6 +328,21 @@ public class AdminDashboardController {
             Parent root = loader.getRoot();
             
             UsersController controller = loader.getController();
+            controller.setUserInfo(nameLabel.getText(), emailLabel.getText(), "Admin");
+            
+            Navigation.setRoot(event, root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @FXML
+    private void handleHistory(ActionEvent event) {
+        try {
+            FXMLLoader loader = Navigation.load("/com/example/meetverse/History.fxml");
+            Parent root = loader.getRoot();
+            
+            HistoryController controller = loader.getController();
             controller.setUserInfo(nameLabel.getText(), emailLabel.getText(), "Admin");
             
             Navigation.setRoot(event, root);
@@ -70,73 +373,5 @@ public class AdminDashboardController {
         if (name != null && !name.isEmpty()) {
             profileInitialLabel.setText(String.valueOf(name.charAt(0)).toUpperCase());
         }
-    }
-
-    private void showAllUsers() {
-        Stage stage = new Stage();
-        stage.setTitle("All Users");
-
-        TableView<UserData> tableView = new TableView<>();
-
-        TableColumn<UserData, Integer> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-        idCol.setPrefWidth(50);
-
-        TableColumn<UserData, String> nameCol = new TableColumn<>("Name");
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-        nameCol.setPrefWidth(150);
-
-        TableColumn<UserData, String> emailCol = new TableColumn<>("Email");
-        emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
-        emailCol.setPrefWidth(200);
-
-        TableColumn<UserData, String> roleCol = new TableColumn<>("Role");
-        roleCol.setCellValueFactory(new PropertyValueFactory<>("role"));
-        roleCol.setPrefWidth(100);
-
-        tableView.getColumns().addAll(idCol, nameCol, emailCol, roleCol);
-
-        ObservableList<UserData> data = FXCollections.observableArrayList();
-
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:src/main/resources/com/example/meetverse/Databases/meetverse.db");
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT id, name, email, role FROM users ORDER BY id")) {
-
-            while (rs.next()) {
-                data.add(new UserData(
-                    rs.getInt("id"),
-                    rs.getString("name"),
-                    rs.getString("email"),
-                    rs.getString("role")
-                ));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        tableView.setItems(data);
-
-        Scene scene = new Scene(tableView, 500, 400);
-        stage.setScene(scene);
-        stage.show();
-    }
-
-    public static class UserData {
-        private final Integer id;
-        private final String name;
-        private final String email;
-        private final String role;
-
-        public UserData(Integer id, String name, String email, String role) {
-            this.id = id;
-            this.name = name;
-            this.email = email;
-            this.role = role;
-        }
-
-        public Integer getId() { return id; }
-        public String getName() { return name; }
-        public String getEmail() { return email; }
-        public String getRole() { return role; }
     }
 }

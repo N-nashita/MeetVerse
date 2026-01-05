@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -32,14 +33,14 @@
             <HBox alignment="CENTER_RIGHT" spacing="6">
                 <Button onAction="#handleHome" styleClass="header-button" text="Home" />
                 <Button onAction="#handleUsers" styleClass="header-button" text="Users" />
-                <Button styleClass="header-button" text="History" />
+                <Button onAction="#handleHistory" styleClass="header-button" text="History" />
                 <Button onAction="#handleSettings" styleClass="header-button" text="Settings" />
             </HBox>
         </HBox>
     </top>
 
     <left>
-        <HBox alignment="CENTER_LEFT" prefWidth="260" spacing="12" styleClass="profile-section">
+        <HBox alignment="CENTER_LEFT" prefWidth="240.0" spacing="12" styleClass="profile-section">
             <padding>
                 <Insets bottom="40" left="20" right="20" top="40" />
             </padding>
@@ -70,17 +71,26 @@
     </left>
 
     <center>
-        <VBox alignment="CENTER" spacing="20" styleClass="content-section" HBox.hgrow="ALWAYS">
+        <VBox spacing="15" styleClass="content-section" HBox.hgrow="ALWAYS">
             <padding>
-                <Insets bottom="40" left="40" right="40" top="40" />
+                <Insets bottom="20" left="20" right="20" top="20" />
             </padding>
 
-
-            <Label prefHeight="23.0" prefWidth="149.0" styleClass="dashboard-title" text="No meetings scheduled">
+            <Label styleClass="dashboard-title" text="Meeting Requests">
                 <font>
-                    <Font size="14.0" />
+                    <Font size="18.0" />
                 </font>
             </Label>
+            
+            <Label style="-fx-font-size: 12px; -fx-text-fill: #666;" text="Click on a meeting card to view details and approve/reject" />
+            
+            <javafx.scene.control.ScrollPane fx:id="meetingRequestsScrollPane" fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                <VBox fx:id="meetingRequestsContainer" spacing="10" style="-fx-background-color: transparent;">
+                    <padding>
+                        <Insets bottom="10" left="10" right="10" top="10" />
+                    </padding>
+                </VBox>
+            </javafx.scene.control.ScrollPane>
         </VBox>
     </center>
 
