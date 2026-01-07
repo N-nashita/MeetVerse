@@ -373,5 +373,6 @@ public class AdminDashboardController {
         if (name != null && !name.isEmpty()) {
             profileInitialLabel.setText(String.valueOf(name.charAt(0)).toUpperCase());
         }
+        loadMeetings();
     }
 }

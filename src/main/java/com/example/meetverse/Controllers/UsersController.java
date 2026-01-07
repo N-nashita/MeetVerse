@@ -32,6 +32,9 @@ public class UsersController {
 
     @FXML
     private VBox usersContainer;
+    
+    @FXML
+    private Label allUsersLabel;
 
     private String userRole;
 
@@ -119,6 +122,7 @@ public class UsersController {
 
     private void loadUsers() {
         usersContainer.getChildren().clear();
+        int totalUsers = 0;
 
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:src/main/resources/com/example/meetverse/Databases/meetverse.db");
              Statement stmt = conn.createStatement();
@@ -132,9 +136,15 @@ public class UsersController {
                     rs.getString("role")
                 );
                 usersContainer.getChildren().add(userCard);
+                totalUsers++;
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        
+        // Update the label with total count
+        if (allUsersLabel != null) {
+            allUsersLabel.setText("All Users (" + totalUsers + ")");
         }
     }
 

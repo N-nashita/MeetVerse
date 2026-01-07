@@ -397,7 +397,180 @@ public class DatabaseManager {
             return false;
         }
     }
-
+    
+    public static java.util.List<Meeting> getMeetingsByCreator(int userId) {
+        java.util.List<Meeting> meetings = new java.util.ArrayList<>();
+        String sql = "SELECT m.*, u.name as creator_name FROM meetings m JOIN users u ON m.created_by = u.id WHERE m.created_by = ? AND m.is_history = 0 ORDER BY m.created_at DESC";
+        
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                meetings.add(new Meeting(
+                    rs.getInt("id"),
+                    rs.getString("title"),
+                    rs.getString("description"),
+                    rs.getString("meeting_date"),
+                    rs.getString("meeting_time"),
+                    rs.getString("meeting_type"),
+                    rs.getInt("created_by"),
+                    rs.getString("creator_name"),
+                    rs.getString("status"),
+                    rs.getString("created_at"),
+                    rs.getString("meeting_link")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return meetings;
+    }
+    
+    public static boolean updateMeetingDetails(int meetingId, String title, String description, 
+                                              String date, String time, String type, java.util.List<Integer> participantIds) {
+        String updateMeetingSql = "UPDATE meetings SET title = ?, description = ?, meeting_date = ?, meeting_time = ?, meeting_type = ? WHERE id = ?";
+        String deleteParticipantsSql = "DELETE FROM meeting_participants WHERE meeting_id = ?";
+        String insertParticipantSql = "INSERT INTO meeting_participants (meeting_id, user_id) VALUES (?, ?)";
+        
+        try {
+            connection.setAutoCommit(false);
+            
+            // Update meeting details
+            try (PreparedStatement pstmt = connection.prepareStatement(updateMeetingSql)) {
+                pstmt.setString(1, title);
+                pstmt.setString(2, description);
+                pstmt.setString(3, date);
+                pstmt.setString(4, time);
+                pstmt.setString(5, type);
+                pstmt.setInt(6, meetingId);
+                pstmt.executeUpdate();
+            }
+            
+            // Delete existing participants
+            try (PreparedStatement pstmt = connection.prepareStatement(deleteParticipantsSql)) {
+                pstmt.setInt(1, meetingId);
+                pstmt.executeUpdate();
+            }
+            
+            // Insert new participants
+            try (PreparedStatement pstmt = connection.prepareStatement(insertParticipantSql)) {
+                for (int participantId : participantIds) {
+                    pstmt.setInt(1, meetingId);
+                    pstmt.setInt(2, participantId);
+                    pstmt.executeUpdate();
+                }
+            }
+            
+            connection.commit();
+            connection.setAutoCommit(true);
+            return true;
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public static boolean updateUserRole(int userId, String newRole) {
+        String sql = "UPDATE users SET role = ? WHERE id = ?";
+        
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, newRole);
+            pstmt.setInt(2, userId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public static boolean transferAdminRole(int currentAdminId, int newAdminId) {
+        try {
+            connection.setAutoCommit(false);
+            
+            // Demote current admin to User
+            String demoteSql = "UPDATE users SET role = 'User' WHERE id = ?";
+            try (PreparedStatement pstmt = connection.prepareStatement(demoteSql)) {
+                pstmt.setInt(1, currentAdminId);
+                pstmt.executeUpdate();
+            }
+            
+            // Promote new user to Admin
+            String promoteSql = "UPDATE users SET role = 'Admin' WHERE id = ?";
+            try (PreparedStatement pstmt = connection.prepareStatement(promoteSql)) {
+                pstmt.setInt(1, newAdminId);
+                pstmt.executeUpdate();
+            }
+            
+            connection.commit();
+            connection.setAutoCommit(true);
+            return true;
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public static boolean deleteUser(int userId) {
+        try {
+            connection.setAutoCommit(false);
+            
+            // Delete user's meeting participants (remove user from meetings they are invited to)
+            String deleteParticipantsSql = "DELETE FROM meeting_participants WHERE user_id = ?";
+            try (PreparedStatement pstmt = connection.prepareStatement(deleteParticipantsSql)) {
+                pstmt.setInt(1, userId);
+                pstmt.executeUpdate();
+            }
+            
+            // Delete user
+            String deleteUserSql = "DELETE FROM users WHERE id = ?";
+            try (PreparedStatement pstmt = connection.prepareStatement(deleteUserSql)) {
+                pstmt.setInt(1, userId);
+                pstmt.executeUpdate();
+            }
+            
+            connection.commit();
+            connection.setAutoCommit(true);
+            return true;
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public static boolean addUser(String name, String email, String password, String role) {
+        String sql = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)";
+        
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+            pstmt.setString(2, email);
+            pstmt.setString(3, hashPassword(password));
+            pstmt.setString(4, role);
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
     public static void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {

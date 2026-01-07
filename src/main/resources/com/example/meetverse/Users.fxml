@@ -76,7 +76,8 @@
                 <Insets bottom="20" left="20" right="20" top="20" />
             </padding>
 
-            <Label styleClass="dashboard-title" text="All Users">
+
+            <Label fx:id="allUsersLabel" styleClass="dashboard-title" text="All Users">
                 <font>
                     <Font size="24.0" />
                 </font>

@@ -83,13 +83,19 @@
 
             <VBox alignment="CENTER" prefWidth="350" spacing="12">
 
-                <Button onAction="#handleEditParticipants" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="Participants">
+                <Button onAction="#handleEditParticipants" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="Edit users">
                     <font>
                         <Font size="13.0" />
                     </font>
                 </Button>
 
                 <Button onAction="#handleEditAdmin" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="Change Admin">
+                    <font>
+                        <Font size="13.0" />
+                    </font>
+                </Button>
+
+                <Button onAction="#handleLogout" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="Logout">
                     <font>
                         <Font size="13.0" />
                     </font>
