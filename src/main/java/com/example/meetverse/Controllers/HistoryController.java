@@ -66,7 +66,6 @@ public class HistoryController {
         card.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);");
         card.setCursor(javafx.scene.Cursor.HAND);
         
-        // Title and Status
         HBox titleRow = new HBox(10);
         titleRow.setAlignment(Pos.CENTER_LEFT);
         
@@ -74,19 +73,23 @@ public class HistoryController {
         titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1a1d3f;");
         HBox.setHgrow(titleLabel, Priority.ALWAYS);
         
-        Label statusLabel = new Label("Completed");
+        Label statusLabel = new Label(meeting.getStatus());
         statusLabel.setPadding(new Insets(4, 12, 4, 12));
-        statusLabel.setStyle("-fx-background-color: #D3D3D3; -fx-text-fill: #555; -fx-background-radius: 12; -fx-font-size: 11px; -fx-font-weight: bold;");
+        
+        String statusStyle = switch (meeting.getStatus()) {
+            case "Rejected" -> "-fx-background-color: #F8D7DA; -fx-text-fill: #721C24; -fx-background-radius: 12;";
+            case "Approved" -> "-fx-background-color: #D4EDDA; -fx-text-fill: #155724; -fx-background-radius: 12;";
+            default -> "-fx-background-color: #D3D3D3; -fx-text-fill: #555; -fx-background-radius: 12;";
+        };
+        statusLabel.setStyle(statusStyle + " -fx-font-size: 11px; -fx-font-weight: bold;");
         
         titleRow.getChildren().addAll(titleLabel, statusLabel);
         
-        // Description
         Label descLabel = new Label(meeting.getDescription());
         descLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666;");
         descLabel.setWrapText(true);
         descLabel.setMaxHeight(40);
         
-        // Date, Time, Type
         HBox detailsRow = new HBox(15);
         detailsRow.setAlignment(Pos.CENTER_LEFT);
         
@@ -103,10 +106,8 @@ public class HistoryController {
         
         card.getChildren().addAll(titleRow, descLabel, detailsRow);
         
-        // Click handler
         card.setOnMouseClicked(e -> showMeetingDetails(meeting));
         
-        // Hover effect
         card.setOnMouseEntered(e -> card.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #1b3d64; -fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 3);"));
         card.setOnMouseExited(e -> card.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);"));
         
@@ -145,7 +146,6 @@ public class HistoryController {
         Label status = new Label("Status: " + meeting.getStatus());
         status.setStyle("-fx-font-size: 14px;");
         
-        // Get and display participants
         List<DatabaseManager.User> participants = DatabaseManager.getMeetingParticipants(meeting.getId());
         Label participantsLabel = new Label("Participants:");
         participantsLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 10 0 5 0;");

@@ -142,7 +142,6 @@ public class UsersController {
             e.printStackTrace();
         }
         
-        // Update the label with total count
         if (allUsersLabel != null) {
             allUsersLabel.setText("All Users (" + totalUsers + ")");
         }
@@ -155,7 +154,6 @@ public class UsersController {
         card.setPrefHeight(70);
         card.setMaxWidth(Double.MAX_VALUE);
 
-        // Profile circle with initial
         StackPane profileCircle = new StackPane();
         Circle circle = new Circle(25);
         circle.getStyleClass().add("user-profile-circle");

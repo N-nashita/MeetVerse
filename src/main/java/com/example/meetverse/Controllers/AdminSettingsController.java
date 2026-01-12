@@ -111,7 +111,6 @@ public class AdminSettingsController {
         Label titleLabel = new Label("User Management");
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
         
-        // Add User Button
         Button addUserBtn = new Button("+ Add New User");
         addUserBtn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 20; -fx-font-weight: bold;");
         addUserBtn.setOnAction(e -> showAddUserDialog(dialog));
@@ -171,7 +170,6 @@ public class AdminSettingsController {
             Button deleteBtn = new Button("Delete");
             deleteBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-padding: 5 15;");
             
-            // Prevent deleting admin
             if ("Admin".equals(user.getRole())) {
                 deleteBtn.setDisable(true);
                 deleteBtn.setText("Admin");
@@ -252,7 +250,6 @@ public class AdminSettingsController {
             if (success) {
                 showAlert(Alert.AlertType.INFORMATION, "Success", "User added successfully!");
                 dialog.close();
-                // Reload users list in parent dialog
                 parentDialog.close();
                 showManageUsersDialog();
             } else {
@@ -283,7 +280,6 @@ public class AdminSettingsController {
             return;
         }
         
-        // Get all non-admin users
         List<DatabaseManager.User> allUsers = DatabaseManager.getAllUsers();
         List<DatabaseManager.User> nonAdminUsers = allUsers.stream()
             .filter(user -> !"Admin".equals(user.getRole()))
@@ -327,7 +323,6 @@ public class AdminSettingsController {
             userBtn.setStyle("-fx-background-color: #f0f0f0; -fx-padding: 10; -fx-alignment: center-left;");
             userBtn.setOnAction(e -> {
                 selectedUser[0] = user;
-                // Highlight selected
                 userListBox.getChildren().forEach(node -> {
                     if (node instanceof Button) {
                         ((Button) node).setStyle("-fx-background-color: #f0f0f0; -fx-padding: 10; -fx-alignment: center-left;");
@@ -350,7 +345,6 @@ public class AdminSettingsController {
                 return;
             }
             
-            // Confirmation dialog
             Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
             confirmAlert.setTitle("Confirm Admin Transfer");
             confirmAlert.setHeaderText("Are you sure?");
@@ -367,8 +361,7 @@ public class AdminSettingsController {
                             ".\n\nYou will now be redirected to the login page.");
                     dialog.close();
                     
-                    // Redirect to login
-                    redirectToLogin(e);
+                    redirectToLogin();
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Error", "Failed to transfer admin role. Please try again.");
                 }
@@ -390,10 +383,17 @@ public class AdminSettingsController {
         dialog.showAndWait();
     }
     
-    private void redirectToLogin(ActionEvent event) {
+    private void redirectToLogin() {
         try {
             Parent root = Navigation.load("/com/example/meetverse/Login.fxml").getRoot();
-            Navigation.setRoot(event, root);
+            Stage stage = (Stage) nameLabel.getScene().getWindow();
+            Scene scene = stage.getScene();
+            if (scene == null) {
+                scene = new Scene(root);
+                stage.setScene(scene);
+            } else {
+                scene.setRoot(root);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -407,7 +407,6 @@ public class AdminSettingsController {
             profileInitialLabel.setText(String.valueOf(name.charAt(0)).toUpperCase());
         }
         
-        // Get adminId from email
         DatabaseManager.User user = DatabaseManager.getUserByEmail(email);
         if (user != null) {
             this.adminId = user.getId();

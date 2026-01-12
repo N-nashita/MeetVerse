@@ -48,11 +48,15 @@ public class AdminDashboardController {
     }
     
     private void loadMeetings() {
+        if (meetingRequestsContainer == null) {
+            return;
+        }
+        
         meetingRequestsContainer.getChildren().clear();
         List<DatabaseManager.Meeting> meetings = DatabaseManager.getAllMeetings();
         
         if (meetings.isEmpty()) {
-            Label noMeetings = new Label("No meeting requests yet");
+            Label noMeetings = new Label("No scheduled meetings");
             noMeetings.setStyle("-fx-font-size: 14px; -fx-text-fill: #999;");
             VBox emptyBox = new VBox(noMeetings);
             emptyBox.setAlignment(Pos.CENTER);
@@ -72,7 +76,6 @@ public class AdminDashboardController {
         card.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);");
         card.setCursor(javafx.scene.Cursor.HAND);
         
-        // Title and Status
         HBox titleRow = new HBox(10);
         titleRow.setAlignment(Pos.CENTER_LEFT);
         
@@ -93,13 +96,11 @@ public class AdminDashboardController {
         
         titleRow.getChildren().addAll(titleLabel, statusLabel);
         
-        // Description
         Label descLabel = new Label(meeting.getDescription());
         descLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666;");
         descLabel.setWrapText(true);
         descLabel.setMaxHeight(40);
         
-        // Date, Time, Type
         HBox detailsRow = new HBox(15);
         detailsRow.setAlignment(Pos.CENTER_LEFT);
         
@@ -114,11 +115,9 @@ public class AdminDashboardController {
         
         detailsRow.getChildren().addAll(dateLabel, timeLabel, typeLabel);
         
-        // Creator
         Label creatorLabel = new Label("Requested by: " + meeting.getCreatorName());
         creatorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #888; -fx-font-style: italic;");
         
-        // Countdown for approved meetings
         Label countdownLabel = new Label();
         countdownLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1b3d64;");
         
@@ -135,10 +134,8 @@ public class AdminDashboardController {
             card.getChildren().add(countdownLabel);
         }
         
-        // Click handler
         card.setOnMouseClicked(e -> showMeetingDetails(meeting));
         
-        // Hover effect
         card.setOnMouseEntered(e -> card.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #1b3d64; -fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 3);"));
         card.setOnMouseExited(e -> card.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);"));
         
@@ -158,9 +155,7 @@ public class AdminDashboardController {
                 countdownLabel.setText("⏰ Meeting time has passed");
                 countdownLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #999;");
                 
-                // Move to history
                 DatabaseManager.moveToHistory(meeting.getId());
-                // Reload meetings to reflect changes
                 javafx.application.Platform.runLater(() -> loadMeetings());
             } else {
                 long days = totalSeconds / 86400;
@@ -178,7 +173,6 @@ public class AdminDashboardController {
     
     private LocalTime parseTime12Hour(String timeStr) {
         try {
-            // Check if time already contains AM/PM
             if (timeStr.contains("AM") || timeStr.contains("PM")) {
                 String[] parts = timeStr.trim().split(" ");
                 String time = parts[0];
@@ -188,7 +182,6 @@ public class AdminDashboardController {
                 int hour = Integer.parseInt(timeParts[0]);
                 int minute = Integer.parseInt(timeParts[1]);
                 
-                // Convert to 24-hour format
                 if (ampm.equals("PM") && hour != 12) {
                     hour += 12;
                 } else if (ampm.equals("AM") && hour == 12) {
@@ -197,11 +190,9 @@ public class AdminDashboardController {
                 
                 return LocalTime.of(hour, minute);
             } else {
-                // Fallback to 24-hour format
                 return LocalTime.parse(timeStr);
             }
         } catch (Exception e) {
-            // Default to current time if parsing fails
             return LocalTime.now();
         }
     }
@@ -241,7 +232,6 @@ public class AdminDashboardController {
         Label status = new Label("Status: " + meeting.getStatus());
         status.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
         
-        // Get and display participants
         List<DatabaseManager.User> participants = DatabaseManager.getMeetingParticipants(meeting.getId());
         Label participantsLabel = new Label("Participants:");
         participantsLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 10 0 5 0;");
@@ -260,7 +250,6 @@ public class AdminDashboardController {
         
         vbox.getChildren().addAll(titleLabel, title, description, date, time, type, creator, status, participantsLabel, participantsScroll);
         
-        // Add action buttons for pending meetings
         if ("Pending".equals(meeting.getStatus())) {
             HBox buttonBox = new HBox(10);
             buttonBox.setAlignment(Pos.CENTER);
@@ -279,6 +268,7 @@ public class AdminDashboardController {
             rejectButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-padding: 8 20;");
             rejectButton.setOnAction(e -> {
                 DatabaseManager.updateMeetingStatus(meeting.getId(), "Rejected");
+                DatabaseManager.moveToHistory(meeting.getId());
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Meeting rejected!");
                 loadMeetings();
                 dialog.close();
@@ -317,7 +307,6 @@ public class AdminDashboardController {
 
     @FXML
     private void handleHome(ActionEvent event) {
-        // Refresh the meetings list
         loadMeetings();
     }
 

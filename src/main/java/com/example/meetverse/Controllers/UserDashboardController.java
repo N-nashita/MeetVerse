@@ -46,15 +46,18 @@ public class UserDashboardController {
     
     @FXML
     private void initialize() {
-        loadAllMeetings();
     }
     
     private void loadAllMeetings() {
+        if (meetingsContainer == null) {
+            return;
+        }
+        
         meetingsContainer.getChildren().clear();
         List<DatabaseManager.Meeting> meetings = DatabaseManager.getAllMeetings();
         
         if (meetings.isEmpty()) {
-            Label noMeetings = new Label("No meetings yet");
+            Label noMeetings = new Label("No scheduled meetings");
             noMeetings.setStyle("-fx-font-size: 14px; -fx-text-fill: #999;");
             VBox emptyBox = new VBox(noMeetings);
             emptyBox.setAlignment(Pos.CENTER);
@@ -74,7 +77,6 @@ public class UserDashboardController {
         card.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);");
         card.setCursor(javafx.scene.Cursor.HAND);
         
-        // Title and Status
         HBox titleRow = new HBox(10);
         titleRow.setAlignment(Pos.CENTER_LEFT);
         
@@ -95,17 +97,14 @@ public class UserDashboardController {
         
         titleRow.getChildren().addAll(titleLabel, statusLabel);
         
-        // Description
         Label descLabel = new Label(meeting.getDescription());
         descLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #666;");
         descLabel.setWrapText(true);
         descLabel.setMaxHeight(40);
         
-        // Launcher name
         Label launcherLabel = new Label("👤 Launcher: " + meeting.getCreatorName());
         launcherLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #1b3d64; -fx-font-weight: bold;");
         
-        // Date, Time, Type
         HBox detailsRow = new HBox(15);
         detailsRow.setAlignment(Pos.CENTER_LEFT);
         
@@ -120,7 +119,6 @@ public class UserDashboardController {
         
         detailsRow.getChildren().addAll(dateLabel, timeLabel, typeLabel);
         
-        // Countdown for approved meetings
         Label countdownLabel = new Label();
         countdownLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1b3d64;");
         
@@ -136,25 +134,22 @@ public class UserDashboardController {
         if ("Approved".equals(meeting.getStatus())) {
             card.getChildren().add(countdownLabel);
             
-            // Show meeting code only for Online meetings and if user is a participant
             if ("Online".equals(meeting.getMeetingType()) && userId > 0 && DatabaseManager.isUserParticipant(userId, meeting.getId())) {
-                String meetingCode = meeting.getMeetingLink();
-                if (meetingCode == null || meetingCode.trim().isEmpty()) {
-                    meetingCode = generateMeetingCode(meeting.getId());
-                    DatabaseManager.updateMeetingLink(meeting.getId(), meetingCode);
+                String meetingLink = meeting.getMeetingLink();
+                if (meetingLink == null || meetingLink.trim().isEmpty()) {
+                    meetingLink = generateMeetingLink(meeting.getId());
+                    DatabaseManager.updateMeetingLink(meeting.getId(), meetingLink);
                 }
                 
-                // Display meeting code
-                Label codeLabel = new Label("📋 Meeting Code: " + meetingCode);
-                codeLabel.setStyle("-fx-text-fill: #1b3d64; -fx-font-size: 13px; -fx-font-weight: bold; -fx-background-color: #E8F4F8; -fx-padding: 8 12; -fx-background-radius: 5;");
-                card.getChildren().add(codeLabel);
+                Label linkLabel = new Label("🔗 Meeting Link: " + meetingLink);
+                linkLabel.setStyle("-fx-text-fill: #1b3d64; -fx-font-size: 13px; -fx-font-weight: bold; -fx-background-color: #E8F4F8; -fx-padding: 8 12; -fx-background-radius: 5;");
+                linkLabel.setWrapText(true);
+                card.getChildren().add(linkLabel);
             }
         }
         
-        // Click handler
         card.setOnMouseClicked(e -> showMeetingDetails(meeting));
         
-        // Hover effect
         card.setOnMouseEntered(e -> card.setStyle("-fx-background-color: #f8f9fa; -fx-border-color: #1b3d64; -fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 8, 0, 0, 3);"));
         card.setOnMouseExited(e -> card.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 8; -fx-background-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);"));
         
@@ -174,9 +169,7 @@ public class UserDashboardController {
                 countdownLabel.setText("⏰ Meeting time has passed");
                 countdownLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #999;");
                 
-                // Move to history
                 DatabaseManager.moveToHistory(meeting.getId());
-                // Reload meetings to reflect changes
                 javafx.application.Platform.runLater(() -> loadAllMeetings());
             } else {
                 long days = totalSeconds / 86400;
@@ -194,7 +187,6 @@ public class UserDashboardController {
     
     private LocalTime parseTime12Hour(String timeStr) {
         try {
-            // Check if time already contains AM/PM
             if (timeStr.contains("AM") || timeStr.contains("PM")) {
                 String[] parts = timeStr.trim().split(" ");
                 String time = parts[0];
@@ -204,7 +196,6 @@ public class UserDashboardController {
                 int hour = Integer.parseInt(timeParts[0]);
                 int minute = Integer.parseInt(timeParts[1]);
                 
-                // Convert to 24-hour format
                 if (ampm.equals("PM") && hour != 12) {
                     hour += 12;
                 } else if (ampm.equals("AM") && hour == 12) {
@@ -213,17 +204,14 @@ public class UserDashboardController {
                 
                 return LocalTime.of(hour, minute);
             } else {
-                // Fallback to 24-hour format
                 return LocalTime.parse(timeStr);
             }
         } catch (Exception e) {
-            // Default to current time if parsing fails
             return LocalTime.now();
         }
     }
     
-    private String generateMeetingCode(int meetingId) {
-        // Generate a simple meeting code based on meeting ID
+    private String generateMeetingLink(int meetingId) {
         String chars = "abcdefghijklmnopqrstuvwxyz";
         StringBuilder code = new StringBuilder();
         int id = meetingId;
@@ -240,8 +228,7 @@ public class UserDashboardController {
         for (int i = 0; i < 3; i++) {
             code.append(chars.charAt((meetingId * (i + 3)) % 26));
         }
-        
-        return code.toString();
+        return "https://meet.meetverse.com/" + code.toString();
     }
     
     private void showMeetingDetails(DatabaseManager.Meeting meeting) {
@@ -273,7 +260,6 @@ public class UserDashboardController {
         Label type = new Label("Type: " + meeting.getMeetingType());
         type.setStyle("-fx-font-size: 14px;");
         
-        // Get and display participants
         List<DatabaseManager.User> participants = DatabaseManager.getMeetingParticipants(meeting.getId());
         Label participantsLabel = new Label("Participants:");
         participantsLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 10 0 5 0;");
@@ -381,12 +367,11 @@ public class UserDashboardController {
         if (name != null && !name.isEmpty()) {
             profileInitialLabel.setText(String.valueOf(name.charAt(0)).toUpperCase());
         }
+        loadAllMeetings();
     }
     
     public void setUserInfo(String name, String email, int userId) {
         this.userId = userId;
         setUserInfo(name, email);
-        // Reload meetings with userId set
-        loadAllMeetings();
     }
 }

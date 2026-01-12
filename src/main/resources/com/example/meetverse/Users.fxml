@@ -17,7 +17,7 @@
 <BorderPane prefHeight="500.0" prefWidth="650.0" stylesheets="@Homepage.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.meetverse.Controllers.UsersController">
 
     <top>
-        <HBox alignment="CENTER" prefHeight="50.0" spacing="20" style="-fx-background-color: #1b3d64e0; -fx-padding: 8 20;">
+        <HBox alignment="CENTER" prefHeight="50.0" spacing="20" style="-fx-background-color: #012163; -fx-padding: 8 20;">
             <HBox alignment="CENTER_LEFT" spacing="10" HBox.hgrow="ALWAYS">
                 <ImageView fitHeight="35.0" fitWidth="35.0" preserveRatio="true" styleClass="image">
                     <image>

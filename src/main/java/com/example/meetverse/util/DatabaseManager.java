@@ -69,18 +69,14 @@ public class DatabaseManager {
             stmt.execute(createMeetingsTable);
             stmt.execute(createMeetingParticipantsTable);
             
-            // Add is_history column if it doesn't exist (migration)
             try {
                 stmt.execute("ALTER TABLE meetings ADD COLUMN is_history INTEGER DEFAULT 0");
             } catch (SQLException e) {
-                // Column already exists, ignore
             }
             
-            // Add meeting_link column if it doesn't exist (migration)
             try {
                 stmt.execute("ALTER TABLE meetings ADD COLUMN meeting_link TEXT");
             } catch (SQLException e) {
-                // Column already exists, ignore
             }
         }
     }
@@ -218,7 +214,6 @@ public class DatabaseManager {
         try {
             connection.setAutoCommit(false);
             
-            // Insert meeting
             int meetingId;
             try (PreparedStatement pstmt = connection.prepareStatement(insertMeetingSql, Statement.RETURN_GENERATED_KEYS)) {
                 pstmt.setString(1, title);
@@ -239,7 +234,6 @@ public class DatabaseManager {
                 }
             }
             
-            // Insert participants
             try (PreparedStatement pstmt = connection.prepareStatement(insertParticipantSql)) {
                 for (int participantId : participantIds) {
                     pstmt.setInt(1, meetingId);
@@ -275,6 +269,8 @@ public class DatabaseManager {
         java.util.List<Meeting> meetings = new java.util.ArrayList<>();
         int historyFlag = isHistory ? 1 : 0;
         String sql = "SELECT m.*, u.name as creator_name FROM meetings m JOIN users u ON m.created_by = u.id WHERE m.is_history = ? ORDER BY m.created_at DESC";
+        
+        System.out.println("DEBUG: Fetching meetings with isHistory=" + isHistory);
         
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, historyFlag);
@@ -434,8 +430,7 @@ public class DatabaseManager {
         
         try {
             connection.setAutoCommit(false);
-            
-            // Update meeting details
+
             try (PreparedStatement pstmt = connection.prepareStatement(updateMeetingSql)) {
                 pstmt.setString(1, title);
                 pstmt.setString(2, description);
@@ -446,13 +441,11 @@ public class DatabaseManager {
                 pstmt.executeUpdate();
             }
             
-            // Delete existing participants
             try (PreparedStatement pstmt = connection.prepareStatement(deleteParticipantsSql)) {
                 pstmt.setInt(1, meetingId);
                 pstmt.executeUpdate();
             }
             
-            // Insert new participants
             try (PreparedStatement pstmt = connection.prepareStatement(insertParticipantSql)) {
                 for (int participantId : participantIds) {
                     pstmt.setInt(1, meetingId);
@@ -493,14 +486,12 @@ public class DatabaseManager {
         try {
             connection.setAutoCommit(false);
             
-            // Demote current admin to User
             String demoteSql = "UPDATE users SET role = 'User' WHERE id = ?";
             try (PreparedStatement pstmt = connection.prepareStatement(demoteSql)) {
                 pstmt.setInt(1, currentAdminId);
                 pstmt.executeUpdate();
             }
             
-            // Promote new user to Admin
             String promoteSql = "UPDATE users SET role = 'Admin' WHERE id = ?";
             try (PreparedStatement pstmt = connection.prepareStatement(promoteSql)) {
                 pstmt.setInt(1, newAdminId);
@@ -526,14 +517,12 @@ public class DatabaseManager {
         try {
             connection.setAutoCommit(false);
             
-            // Delete user's meeting participants (remove user from meetings they are invited to)
             String deleteParticipantsSql = "DELETE FROM meeting_participants WHERE user_id = ?";
             try (PreparedStatement pstmt = connection.prepareStatement(deleteParticipantsSql)) {
                 pstmt.setInt(1, userId);
                 pstmt.executeUpdate();
             }
             
-            // Delete user
             String deleteUserSql = "DELETE FROM users WHERE id = ?";
             try (PreparedStatement pstmt = connection.prepareStatement(deleteUserSql)) {
                 pstmt.setInt(1, userId);

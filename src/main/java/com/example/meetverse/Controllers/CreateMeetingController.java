@@ -58,10 +58,8 @@ public class CreateMeetingController {
 
     @FXML
     private void initialize() {
-        // Initially disable the create meeting button
         createMeetingButton.setDisable(true);
         
-        // Add listeners to all input fields
         titleField.textProperty().addListener((obs, oldVal, newVal) -> validateForm());
         descriptionField.textProperty().addListener((obs, oldVal, newVal) -> validateForm());
         datePicker.valueProperty().addListener((obs, oldVal, newVal) -> validateForm());
@@ -84,7 +82,6 @@ public class CreateMeetingController {
 
     @FXML
     private void handleChooseParticipants(ActionEvent event) {
-        // Create a new dialog window
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Select Participants");
@@ -96,7 +93,6 @@ public class CreateMeetingController {
         label.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
         vbox.getChildren().add(label);
         
-        // Get all users from database
         List<DatabaseManager.User> allUsers = DatabaseManager.getAllUsers();
         List<CheckBox> checkBoxes = new ArrayList<>();
         
@@ -104,11 +100,10 @@ public class CreateMeetingController {
         VBox userListBox = new VBox(8);
         userListBox.setPadding(new Insets(10));
         
-        // Create a checkbox for each user
         for (DatabaseManager.User user : allUsers) {
             CheckBox checkBox = new CheckBox(user.getName() + " (" + user.getEmail() + ")");
             checkBox.setUserData(user);
-            // Pre-check if user was previously selected
+
             if (selectedParticipants.stream().anyMatch(u -> u.getId() == user.getId())) {
                 checkBox.setSelected(true);
             }
@@ -121,7 +116,6 @@ public class CreateMeetingController {
         scrollPane.setPrefViewportHeight(300);
         vbox.getChildren().add(scrollPane);
         
-        // Add buttons
         Button confirmButton = new Button("Confirm Selection");
         Button cancelButton = new Button("Cancel");
         
@@ -134,7 +128,7 @@ public class CreateMeetingController {
             }
             showAlert(Alert.AlertType.INFORMATION, "Participants Selected", 
                      selectedParticipants.size() + " participant(s) selected.");
-            validateForm(); // Re-validate form after selecting participants
+            validateForm(); 
             dialog.close();
         });
         
@@ -172,7 +166,6 @@ public class CreateMeetingController {
             showAlert(Alert.AlertType.INFORMATION, "Success", 
                      "Meeting request has been sent to admin for approval!");
             
-            // Navigate back to dashboard to show the new meeting
             handleBack(event);
         } else {
             showAlert(Alert.AlertType.ERROR, "Error", 
