@@ -141,10 +141,39 @@ public class UserDashboardController {
                     DatabaseManager.updateMeetingLink(meeting.getId(), meetingLink);
                 }
                 
-                Label linkLabel = new Label("🔗 Meeting Link: " + meetingLink);
-                linkLabel.setStyle("-fx-text-fill: #1b3d64; -fx-font-size: 13px; -fx-font-weight: bold; -fx-background-color: #E8F4F8; -fx-padding: 8 12; -fx-background-radius: 5;");
+                final String finalMeetingLink = meetingLink;
+                
+                HBox linkBox = new HBox(10);
+                linkBox.setAlignment(Pos.CENTER_LEFT);
+                linkBox.setStyle("-fx-background-color: #E8F4F8; -fx-padding: 8 12; -fx-background-radius: 5;");
+                
+                Label linkLabel = new Label("🔗 Meeting Link: " + finalMeetingLink);
+                linkLabel.setStyle("-fx-text-fill: #1b3d64; -fx-font-size: 13px; -fx-font-weight: bold;");
                 linkLabel.setWrapText(true);
-                card.getChildren().add(linkLabel);
+                HBox.setHgrow(linkLabel, Priority.ALWAYS);
+                
+                Button copyButton = new Button("Copy");
+                copyButton.setStyle("-fx-background-color: #1b3d64; -fx-text-fill: white; -fx-padding: 4 12; -fx-cursor: hand; -fx-background-radius: 3;");
+                copyButton.setOnAction(e -> {
+                    javafx.scene.input.Clipboard clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+                    javafx.scene.input.ClipboardContent content = new javafx.scene.input.ClipboardContent();
+                    content.putString(finalMeetingLink);
+                    clipboard.setContent(content);
+                    
+                    copyButton.setText("Copied!");
+                    copyButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 4 12; -fx-cursor: hand; -fx-background-radius: 3;");
+                    
+                    javafx.animation.Timeline timeline = new javafx.animation.Timeline(
+                        new javafx.animation.KeyFrame(javafx.util.Duration.seconds(2), event -> {
+                            copyButton.setText("Copy");
+                            copyButton.setStyle("-fx-background-color: #1b3d64; -fx-text-fill: white; -fx-padding: 4 12; -fx-cursor: hand; -fx-background-radius: 3;");
+                        })
+                    );
+                    timeline.play();
+                });
+                
+                linkBox.getChildren().addAll(linkLabel, copyButton);
+                card.getChildren().add(linkBox);
             }
         }
         
