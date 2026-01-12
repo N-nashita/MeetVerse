@@ -275,7 +275,7 @@ public class AdminDashboardController {
             });
             
             Button closeButton = new Button("Close");
-            closeButton.setStyle("-fx-background-color: #9E9E9E; -fx-text-fill: white; -fx-padding: 8 20;");
+            closeButton.setStyle("-fx-background-color: #1b3d64; -fx-text-fill: white; -fx-padding: 8 20;");
             closeButton.setOnAction(e -> dialog.close());
             
             buttonBox.getChildren().addAll(approveButton, rejectButton, closeButton);

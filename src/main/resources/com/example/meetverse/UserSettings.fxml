@@ -82,6 +82,12 @@
             </Label>
 
             <VBox alignment="CENTER" prefWidth="350" spacing="12">
+                <Button onAction="#handleCancelMeeting" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="Cancel Meeting">
+                    <font>
+                        <Font size="13.0" />
+                    </font>
+                </Button>
+                
                 <Button onAction="#handleLogout" prefHeight="40.0" prefWidth="300.0" styleClass="dashboard-button" text="Logout">
                     <font>
                         <Font size="13.0" />

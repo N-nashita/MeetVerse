@@ -85,6 +85,94 @@ public class UserSettingsController {
     }
 
     @FXML
+    private void handleCancelMeeting(ActionEvent event) {
+        if (userId <= 0) {
+            showAlert(Alert.AlertType.WARNING, "Error", "User ID not set. Please log in again.");
+            return;
+        }
+        
+        List<DatabaseManager.Meeting> myMeetings = DatabaseManager.getMeetingsByCreator(userId);
+        
+        if (myMeetings.isEmpty()) {
+            showAlert(Alert.AlertType.INFORMATION, "No Meetings", "You haven't created any meetings yet.");
+            return;
+        }
+        
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setTitle("Cancel Meeting");
+        
+        VBox vbox = new VBox(15);
+        vbox.setPadding(new Insets(20));
+        vbox.setStyle("-fx-background-color: white;");
+        
+        Label titleLabel = new Label("Select a meeting to cancel");
+        titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(300);
+        scrollPane.setStyle("-fx-background-color: transparent;");
+        
+        VBox meetingsBox = new VBox(10);
+        meetingsBox.setPadding(new Insets(10));
+        
+        for (DatabaseManager.Meeting meeting : myMeetings) {
+            VBox card = new VBox(8);
+            card.setPadding(new Insets(12));
+            card.setStyle("-fx-background-color: #f5f5f5; -fx-border-color: #ddd; -fx-border-radius: 5; -fx-background-radius: 5;");
+            
+            Label meetingTitle = new Label(meeting.getTitle());
+            meetingTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+            
+            Label meetingDetails = new Label("📅 " + meeting.getMeetingDate() + "  🕐 " + meeting.getMeetingTime() + "  📍 " + meeting.getMeetingType());
+            meetingDetails.setStyle("-fx-font-size: 12px; -fx-text-fill: #555;");
+            
+            Label statusLabel = new Label("Status: " + meeting.getStatus());
+            statusLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
+            
+            Button deleteBtn = new Button("Delete Meeting");
+            deleteBtn.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-padding: 6 12; -fx-cursor: hand;");
+            deleteBtn.setOnAction(e -> {
+                Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+                confirmation.setTitle("Confirm Deletion");
+                confirmation.setHeaderText("Delete Meeting: " + meeting.getTitle());
+                confirmation.setContentText("Are you sure you want to delete this meeting? This action cannot be undone.");
+                
+                confirmation.showAndWait().ifPresent(response -> {
+                    if (response == ButtonType.OK) {
+                        boolean success = DatabaseManager.deleteMeeting(meeting.getId());
+                        if (success) {
+                            showAlert(Alert.AlertType.INFORMATION, "Success", "Meeting deleted successfully!");
+                            dialog.close();
+                        } else {
+                            showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete meeting.");
+                        }
+                    }
+                });
+            });
+            
+            card.getChildren().addAll(meetingTitle, meetingDetails, statusLabel, deleteBtn);
+            meetingsBox.getChildren().add(card);
+        }
+        
+        scrollPane.setContent(meetingsBox);
+        
+        Button closeBtn = new Button("Close");
+        closeBtn.setStyle("-fx-background-color: #1b3d64; -fx-text-fill: white; -fx-padding: 8 20; -fx-cursor: hand;");
+        closeBtn.setOnAction(e -> dialog.close());
+        
+        HBox buttonBox = new HBox(closeBtn);
+        buttonBox.setAlignment(Pos.CENTER);
+        
+        vbox.getChildren().addAll(titleLabel, scrollPane, buttonBox);
+        
+        Scene scene = new Scene(vbox, 500, 450);
+        dialog.setScene(scene);
+        dialog.showAndWait();
+    }
+
+    @FXML
     private void handleLogout(ActionEvent event) {
         try {
             Parent root = Navigation.load("/com/example/meetverse/Login.fxml").getRoot();

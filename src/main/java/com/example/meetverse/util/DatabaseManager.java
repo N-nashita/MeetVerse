@@ -513,6 +513,37 @@ public class DatabaseManager {
         }
     }
     
+    public static boolean deleteMeeting(int meetingId) {
+        try {
+            connection.setAutoCommit(false);
+            
+            String deleteParticipantsSql = "DELETE FROM meeting_participants WHERE meeting_id = ?";
+            try (PreparedStatement pstmt = connection.prepareStatement(deleteParticipantsSql)) {
+                pstmt.setInt(1, meetingId);
+                pstmt.executeUpdate();
+            }
+            
+            String deleteMeetingSql = "DELETE FROM meetings WHERE id = ?";
+            try (PreparedStatement pstmt = connection.prepareStatement(deleteMeetingSql)) {
+                pstmt.setInt(1, meetingId);
+                pstmt.executeUpdate();
+            }
+            
+            connection.commit();
+            connection.setAutoCommit(true);
+            return true;
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
     public static boolean deleteUser(int userId) {
         try {
             connection.setAutoCommit(false);
